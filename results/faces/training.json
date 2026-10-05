@@ -1,0 +1,23 @@
+{
+  "steps": 12000,
+  "batch_size": 8,
+  "accumulate": 4,
+  "lr": 0.0003,
+  "size": 32,
+  "levels": 16,
+  "width": 256,
+  "heads": 4,
+  "layers": 6,
+  "dropout": 0.1,
+  "seed": 42,
+  "eval_every": 500,
+  "val_count": 512,
+  "optimizer": "AdamW",
+  "weight_decay": 0.01,
+  "gradient_clip": 1.0,
+  "random_horizontal_flip": true,
+  "schedule": "200-step warmup, cosine decay to 10% of peak learning rate",
+  "training_images": 60000,
+  "validation_images": 5000,
+  "test_images": 5000
+}

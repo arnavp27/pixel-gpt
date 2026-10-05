@@ -5,7 +5,6 @@ import json
 import pandas as pd
 from PIL import Image, UnidentifiedImageError
 import streamlit as st
-import torch
 
 from faces import ROOT
 from faces.preprocess import crop_image, decode, encode, mirror
@@ -85,9 +84,11 @@ def render(mode):
             attribution = None
             if content is None and examples:
                 with example:
-                    index = st.selectbox("Try an example", range(len(examples)),
+                    selected = st.session_state.get("selected_face", 3)
+                    index = st.selectbox("Try an example", range(len(examples)), index=min(selected, len(examples) - 1),
                                          format_func=lambda i: f"Face {i + 1}", key="face_example",
                                          label_visibility="collapsed")
+                st.session_state["selected_face"] = index
                 content = examples[index].read_bytes()
                 attribution = credits.get(examples[index].stem)
             if content is None:
@@ -99,10 +100,12 @@ def render(mode):
                 image = Image.open(io.BytesIO(content))
                 if image.width * image.height > 20_000_000:
                     raise ValueError("Choose a photo smaller than 20 megapixels")
+                crop = st.session_state.get("face_crop", (1.0, 0.5, 0.5))
                 with st.popover("Adjust crop", width="stretch"):
-                    zoom = st.slider("Zoom", 1.0, 4.0, 1.0, 0.1)
-                    x = st.slider("Horizontal", 0.0, 1.0, 0.5, 0.05)
-                    y = st.slider("Vertical", 0.0, 1.0, 0.5, 0.05)
+                    zoom = st.slider("Zoom", 1.0, 4.0, crop[0], 0.1, key="face_zoom")
+                    x = st.slider("Horizontal", 0.0, 1.0, crop[1], 0.05, key="face_x")
+                    y = st.slider("Vertical", 0.0, 1.0, crop[2], 0.05, key="face_y")
+                st.session_state["face_crop"] = (zoom, x, y)
                 tokens = encode(crop_image(image, zoom, x, y), c.size, c.levels)
             except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError) as error:
                 st.error(str(error))
@@ -117,16 +120,17 @@ def render(mode):
                            f"[License]({attribution['license_url']})")
     left = tokens[:c.size * c.size // 2]
     identity = hashlib.sha256(tokens.numpy().tobytes()).hexdigest()
+    previous = st.session_state.get("face_batch", {})
     with st.container(key="face-sampling"):
         with st.form("face_form"):
             temperature_col, seed_col, action = st.columns([2, 1, 1.5], gap="small")
             with temperature_col:
-                temperature = st.slider("Temperature", 0.0, 1.5, 0.8, 0.1,
+                temperature = st.slider("Temperature", 0.0, 1.5, previous.get("temperature", 0.8), 0.1,
                                         help="Lower values favor the most likely shades. Higher values add variation.")
             with seed_col:
-                seed = st.number_input("Seed", min_value=0, max_value=2**31 - 1, value=123, step=1)
+                seed = st.number_input("Seed", min_value=0, max_value=2**31 - 1, value=previous.get("seed", 123), step=1)
             with action:
-                submitted = st.form_submit_button("Complete face", type="primary", width="stretch")
+                submitted = st.form_submit_button("Complete", type="primary", width="stretch")
     if submitted:
         with output, st.spinner("Drawing the missing half…"):
             try:
@@ -142,7 +146,7 @@ def render(mode):
         batch = st.session_state.get("face_batch")
         if batch is None:
             st.markdown('<div class="empty-gallery"><p>What could the other half look like?</p>'
-                        '<span>Choose a photo, then press Complete face. Your visible half stays fixed.</span></div>',
+                        '<span>Choose a photo, then press Complete. Your visible half stays fixed.</span></div>',
                         unsafe_allow_html=True)
             return
         if identity != batch["identity"]:

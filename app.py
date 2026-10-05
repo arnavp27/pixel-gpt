@@ -15,7 +15,7 @@ with st.container(key="header"):
         st.title("Pixel GPT")
         st.caption("Pixels, one at a time")
     with demo_choice:
-        demo = st.selectbox("Demo", ["Sprites", "Faces"], key="demo", label_visibility="collapsed")
+        demo = st.selectbox("Demo", ["Faces", "Sprites"], key="demo", label_visibility="collapsed")
     with navigation:
         pages = ["Generate", "Compare", "Results"] if demo == "Sprites" else ["Complete", "Compare", "Results"]
         page = st.segmented_control("Page", pages, default=pages[0], required=True,

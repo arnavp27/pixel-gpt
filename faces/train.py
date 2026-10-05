@@ -136,7 +136,7 @@ def train(args):
                           "cuda_rng": torch.cuda.get_rng_state_all() if device == "cuda" else None})
             save_checkpoint(state, args.run / "last.pt")
             with (args.run / "loss.csv").open("w", newline="") as file:
-                writer = csv.DictWriter(file, fieldnames=["step", "train_loss", "val_loss"])
+                writer = csv.DictWriter(file, fieldnames=["step", "train_loss", "val_loss"], lineterminator="\n")
                 writer.writeheader()
                 writer.writerows(history)
     if device == "cuda":

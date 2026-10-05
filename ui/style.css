@@ -101,7 +101,7 @@ div:has(> [data-testid="stHeadingWithActionElements"]) { margin-bottom: 0; }
 .st-key-face-input, .st-key-face-output { background: #fffef9; border-radius: 10px; }
 .st-key-face-workspace [data-testid="stImage"] { justify-content: center; }
 .st-key-face-input [data-testid="stImage"] img { max-height: min(190px, calc(100dvh - 510px)); }
-.st-key-face-output [data-testid="stImage"] img { max-height: min(280px, calc(100dvh - 420px)); }
+.st-key-face-output [data-testid="stImage"] img { max-height: min(256px, calc(100dvh - 420px)); }
 .st-key-face-input [data-testid="stFileUploaderDropzone"] { padding: .65rem; }
 .st-key-face-input [data-testid="stFileUploaderDropzoneInstructions"] { display: none; }
 .st-key-face-input [data-testid="stCaptionContainer"] p,

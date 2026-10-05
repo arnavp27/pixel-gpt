@@ -1,5 +1,7 @@
 # Pixel GPT
 
+[Try the app](https://pixel-gpt-arnav.streamlit.app/)
+
 I built this while learning how autoregressive models work. I wanted something
 small enough to understand, with an output I could actually see.
 
@@ -7,13 +9,15 @@ It started with 8×8 drawings: fill in the left half and let a model predict the
 right. I trained a bigram, an MLP, and a small transformer in PyTorch to compare
 what they learned from the same data.
 
-I'm extending it to grayscale faces. Both demos use next-pixel prediction, but
+I then added grayscale face completion. Both demos use next-pixel prediction, but
 faces have shading, lighting, and features that don't match perfectly across
 the middle.
 
-![Pixel GPT comparing the same drawing across three models](results/sprites/playground.png)
+![Pixel GPT completing a face beside the mirror baseline](results/faces/playground.png)
 
 ## Sprites
+
+![The same drawing completed by three models](results/sprites/playground.png)
 
 1. Click or drag on the left half to draw dark pixels. Everything you leave blank
    stays white.
@@ -85,7 +89,6 @@ image. The model can still make mistakes, especially at higher temperatures.
 
 Sample grids, loss histories, and the full metrics are in [`results/sprites/`](results/sprites/).
 
-
 ## Faces
 
 The new model takes a 32×32 face with 16 gray shades. It receives every pixel in
@@ -95,8 +98,9 @@ the left half before predicting the right half:
 START → left half, row by row → right half, row by row
 ```
 
-There are 17 input tokens: 16 shades and a start token. The model predicts one
-of the 16 shades. During training, cross-entropy scores only the right half.
+There are 17 input tokens: 0 is black, 15 is white, the values between them are
+gray shades, and 16 is the start token. The model predicts one of the 16 shades.
+During training, cross-entropy scores only the right half.
 The target is the actual missing half of a training photo.
 
 It's a separate transformer with six blocks, four attention heads, and
@@ -109,8 +113,31 @@ reveal the original photo. Generation uses only the left half; the original
 right half is kept for comparison. This model is for centered faces, not general
 image completion. At 32×32, the output will still look pixelated.
 
-The face weights and evaluation are not published yet. The sprite demo remains
-the working version while I train and check the new model.
+Choose Faces in the app, upload a photo or pick an example, and adjust the crop
+if needed. Press Complete to generate the missing half. Compare shows the
+model beside a mirrored version; Reveal the original lets you check both.
+
+I trained the 5,009,680-parameter model from scratch for 12,000 steps using
+AdamW, an effective batch of 32, and a cosine learning-rate schedule. Checkpoint selection uses the same 512 validation faces at each
+check. Final loss is measured on all 5,000 test faces; generated completions
+are also compared with simply mirroring the left half.
+
+| Measure | Result |
+|---|---:|
+| Right-half test loss | 1.0321 |
+| Model pixel error | 0.1802 |
+| Mirror pixel error | 0.1975 |
+
+Pixel error is mean absolute error on the missing half, with shades scaled to
+0–1. These two errors use 128 randomly selected test faces, temperature 0.8,
+and sampling seed 123. Lower is better. The model had lower average error on
+this sample, but it can still miss features or produce odd backgrounds. This
+isn't a way to recover the exact hidden photo.
+
+The saved [comparison grid](results/faces/comparison.png) shows the first eight
+of those test samples. Metrics, the training settings, curves, and image
+credits are in [results/faces/](results/faces/). Sampling uses a KV cache so it
+doesn't recompute the whole prefix for each new pixel.
 
 ## Code
 
