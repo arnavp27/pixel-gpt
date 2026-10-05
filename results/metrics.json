@@ -1,0 +1,50 @@
+{
+  "data_id": "a4cbe456b73c9342a94b595b43810e3c4b9b3d06e2a7357835987ca1b3303a79",
+  "split_sizes": {
+    "train": 4800,
+    "val": 600,
+    "test": 600
+  },
+  "sample_count": 512,
+  "sample_seed": 123,
+  "temperature": 1.0,
+  "torch_version": "2.13.0+cu132",
+  "models": {
+    "bigram": {
+      "matching_pairs": 0.553955078125,
+      "symmetric_images": 0.0,
+      "unique_samples": 1.0,
+      "training_matches": 0.0,
+      "filled_pixels": 0.39990234375,
+      "parameters": 6,
+      "test_loss": 0.6243336868286132,
+      "val_loss": 0.6212326685587565,
+      "selected_step": 100,
+      "training_seed": 42
+    },
+    "mlp": {
+      "matching_pairs": 0.8125,
+      "symmetric_images": 0.0,
+      "unique_samples": 1.0,
+      "training_matches": 0.0,
+      "filled_pixels": 0.405029296875,
+      "parameters": 11698,
+      "test_loss": 0.41694522857666017,
+      "val_loss": 0.41450283050537107,
+      "selected_step": 1100,
+      "training_seed": 42
+    },
+    "transformer": {
+      "matching_pairs": 0.99993896484375,
+      "symmetric_images": 0.998046875,
+      "unique_samples": 1.0,
+      "training_matches": 0.0,
+      "filled_pixels": 0.404632568359375,
+      "parameters": 104514,
+      "test_loss": 0.27760602633158366,
+      "val_loss": 0.2754555416107178,
+      "selected_step": 900,
+      "training_seed": 42
+    }
+  }
+}
