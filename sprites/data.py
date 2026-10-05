@@ -3,7 +3,7 @@ from pathlib import Path
 
 import torch
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 DATA_FILE = ROOT / "data" / "sprites.pt"
 SIZE = 8
 LENGTH = SIZE * SIZE

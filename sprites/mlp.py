@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from data import LENGTH, START
+from sprites.data import LENGTH, START
 
 
 class MLP(nn.Module):

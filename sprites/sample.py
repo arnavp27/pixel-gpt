@@ -5,14 +5,14 @@ import xml.etree.ElementTree as ET
 
 import torch
 
-from data import LENGTH, ROOT, SIZE, START
-from train import MODELS
+from sprites.data import LENGTH, ROOT, SIZE, START
+from sprites import MODELS
 
 
 def load_model(name, device="cpu"):
-    path = ROOT / "checkpoints" / f"{name}.pt"
+    path = ROOT / "checkpoints" / "sprites" / f"{name}.pt"
     if not path.exists():
-        raise FileNotFoundError(f"Missing {path.name}. Run: python train.py {name}")
+        raise FileNotFoundError(f"Missing {path.name}. Run: python -m sprites.train {name}")
     checkpoint = torch.load(path, map_location="cpu", weights_only=True)
     model = MODELS[name]().to(device)
     model.load_state_dict(checkpoint["state_dict"])
@@ -83,7 +83,7 @@ def main():
     parser.add_argument("--prefix", default="")
     parser.add_argument("--temperature", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=123)
-    parser.add_argument("--output", default="results/samples.svg")
+    parser.add_argument("--output", default="results/sprites/samples.svg")
     args = parser.parse_args()
     torch.set_num_threads(4)
     try:

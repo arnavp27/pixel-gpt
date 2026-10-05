@@ -1,0 +1,9 @@
+--find-links https://download.pytorch.org/whl/cu132/torch/
+torch==2.13.0+cu132; sys_platform != "darwin"
+torch==2.13.0; sys_platform == "darwin"
+streamlit==1.65.0
+pillow==12.3.0
+numpy==2.5.3
+pandas==3.0.6
+requests==2.34.2
+huggingface_hub==2.1.1

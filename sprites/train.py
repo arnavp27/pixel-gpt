@@ -6,12 +6,9 @@ import time
 import torch
 import torch.nn.functional as F
 
-from bigram import Bigram
-from data import ROOT, inputs_for, load_data
-from mlp import MLP
-from transformer import Transformer
+from sprites import MODELS
+from sprites.data import ROOT, inputs_for, load_data
 
-MODELS = {"bigram": Bigram, "mlp": MLP, "transformer": Transformer}
 STEPS = {"bigram": 400, "mlp": 1200, "transformer": 1600}
 RATES = {"bigram": 0.1, "mlp": 0.003, "transformer": 0.002}
 
@@ -34,9 +31,9 @@ def train(name, data, args):
     model = MODELS[name]().to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr or RATES[name], weight_decay=0.01)
     steps = args.steps or STEPS[name]
-    checkpoint = ROOT / "checkpoints" / f"{name}.pt"
-    checkpoint.parent.mkdir(exist_ok=True)
-    (ROOT / "results").mkdir(exist_ok=True)
+    checkpoint = ROOT / "checkpoints" / "sprites" / f"{name}.pt"
+    checkpoint.parent.mkdir(parents=True, exist_ok=True)
+    (ROOT / "results" / "sprites").mkdir(parents=True, exist_ok=True)
     history, best = [], float("inf")
     started = time.perf_counter()
     val_loss = evaluate_loss(model, data["val"], device)
@@ -74,7 +71,7 @@ def train(name, data, args):
                     "seed": args.seed,
                 }, checkpoint)
 
-    with (ROOT / "results" / f"{name}_loss.csv").open("w", newline="") as file:
+    with (ROOT / "results" / "sprites" / f"{name}_loss.csv").open("w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=["step", "train_loss", "val_loss"])
         writer.writeheader()
         writer.writerows(history)

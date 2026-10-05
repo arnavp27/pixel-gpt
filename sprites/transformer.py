@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from data import LENGTH
+from sprites.data import LENGTH
 
 
 class Attention(nn.Module):

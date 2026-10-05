@@ -3,9 +3,10 @@ import json
 
 import torch
 
-from data import ROOT, SIZE, load_data
-from sample import generate, load_model, save_grid
-from train import MODELS, evaluate_loss
+from sprites.data import ROOT, SIZE, load_data
+from sprites.sample import generate, load_model, save_grid
+from sprites import MODELS
+from sprites.train import evaluate_loss
 
 
 def sample_metrics(images, training_images):
@@ -41,8 +42,8 @@ def main():
             parser.error(f"{name} was trained on a different dataset; retrain it")
         loaded[name] = model, checkpoint
 
-    results = ROOT / "results"
-    results.mkdir(exist_ok=True)
+    results = ROOT / "results" / "sprites"
+    results.mkdir(parents=True, exist_ok=True)
     save_grid(data["train"][:32], results / "data.svg", "Training examples")
     report = {
         "data_id": data["id"],
