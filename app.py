@@ -65,7 +65,7 @@ def show_samples(name, images, batch, columns=4):
     grids = images.reshape(-1, SIZE, SIZE)
     symmetric = (grids == grids.flip(2)).flatten(1).all(1).sum().item()
     unique = len(torch.unique(images, dim=0))
-    st.markdown(f'<div class="sample-stats"><span><b>{symmetric}/{len(images)}</b> symmetric</span>'
+    st.markdown(f'<div class="sample-stats"><span><b>{symmetric}/{len(images)}</b> mirrored</span>'
                 f'<span><b>{unique}</b> unique</span></div>', unsafe_allow_html=True)
     buffer = io.BytesIO()
     sheet.save(buffer, format="PNG")
@@ -84,11 +84,12 @@ with st.container(key="header"):
                                     required=True, label_visibility="collapsed", key="page")
 
 if mode in ("Generate", "Compare"):
+    st.markdown('<p class="intro">Trained on mirror images. '
+                'Draw the left half; the model predicts the right.</p>', unsafe_allow_html=True)
     with st.container(key="workspace"):
         canvas, output = st.columns([1, 1.8], gap="medium")
         with canvas, st.container(border=True, key="canvas"):
-            st.subheader("Your canvas")
-            fixed = draw_pixels(key=f"{mode.lower()}_drawing")
+            fixed = draw_pixels(key="drawing")
 
     settings_key = mode.lower() + "_settings"
     settings = st.session_state.get(settings_key, {"model": "transformer", "temperature": 1.0,
@@ -120,28 +121,25 @@ if mode in ("Generate", "Compare"):
 
     state_key = mode.lower() + "_batch"
     error = None
-    if submitted or state_key not in st.session_state:
+    if submitted:
         try:
             with output, st.spinner("Sampling pixels…"):
                 st.session_state[state_key] = make_batch(names, count, fixed, temperature, int(seed))
         except (FileNotFoundError, RuntimeError, ValueError) as problem:
             error = str(problem)
     with output, st.container(border=True, key="gallery"):
-        st.subheader("Generated sprites" if mode == "Generate" else "Three models, one drawing")
+        st.subheader("Completed patterns" if mode == "Generate" else "Three models, one drawing")
         if error:
             st.error(error)
             if state_key in st.session_state:
                 st.caption("The previous samples are still shown below.")
         if state_key in st.session_state:
             batch = st.session_state[state_key]
-            fixed_count = sum(pixel is not None for pixel in batch["fixed"])
             model_label = LABELS[next(iter(batch["images"]))] + " · " if mode == "Generate" else ""
             changed = fixed != batch["fixed"]
-            note = f'{model_label}Seed {batch["seed"]} · Temp {batch["temperature"]:.1f} · {fixed_count} fixed'
+            note = f'{model_label}Seed {batch["seed"]} · Temp {batch["temperature"]:.1f}'
             if changed:
                 note = f"Drawing changed · {mode.lower()} again to apply it"
-            elif fixed_count == 64:
-                note = "64 pixels fixed · samples repeat your drawing"
             st.markdown(f'<p class="batch-note{" changed" if changed else ""}">{note}</p>',
                         unsafe_allow_html=True)
             if mode == "Generate":
@@ -152,6 +150,10 @@ if mode in ("Generate", "Compare"):
                     for column, (name, images) in zip(st.columns(3), batch["images"].items()):
                         with column:
                             show_samples(name, images, batch, columns=2)
+        elif not error:
+            st.markdown(f'<div class="empty-gallery"><p>Your pattern starts here.</p>'
+                        f'<span>Draw on the left, then press {mode}. '
+                        'Your half stays the same in every sample.</span></div>', unsafe_allow_html=True)
 else:
     path = ROOT / "results" / "metrics.json"
     if not path.exists():
@@ -159,8 +161,7 @@ else:
     else:
         report = json.loads(path.read_text())
         st.subheader("What the models learned")
-        st.caption(f"{report['split_sizes']['test']} test images · "
-                   f"{report['sample_count']} samples/model")
+        st.caption("The models learned from mirror images. Better predictions mean lower loss.")
         scores = {"Measure": ["Parameters", "Test loss ↓", "Mirrored pairs", "Symmetric sprites"]}
         for name, metrics in report["models"].items():
             symmetric = round(metrics["symmetric_images"] * report["sample_count"])
@@ -171,7 +172,7 @@ else:
         with table, st.container(border=True, key="scores"):
             st.subheader("Model comparison")
             st.table(pd.DataFrame(scores).set_index("Measure"))
-            st.caption("Loss: lower is better. Symmetry: every mirrored pixel pair matches.")
+            st.caption("Loss: lower is better. Symmetry: the left and right halves are mirror images.")
         histories = []
         for name in MODELS:
             path = ROOT / "results" / f"{name}_loss.csv"
@@ -183,12 +184,11 @@ else:
                 st.subheader("Learning curves")
                 st.caption("Validation loss · lower is better")
                 st.line_chart(pd.concat(histories, axis=1), x_label="Training step", y_label="Loss",
-                              color=["#748578", "#ad7b32", "#315caa"][:len(histories)], height=250)
+                              color=["#748578", "#ad7b32", "#315caa"][:len(histories)], height=240)
         with st.container(key="results-footer"):
             note, download = st.columns([2, 1], vertical_alignment="center")
             with note:
-                st.caption(f"Saved run · seed {report['sample_seed']} · temp {report['temperature']}. "
-                           "Synthetic sprites.")
+                st.caption(f"{report['split_sizes']['test']} test images · {report['sample_count']} samples/model.")
             with download:
                 st.download_button("↓ JSON", json.dumps(report, indent=2), file_name="metrics.json",
                                    help="Download the saved evaluation metrics",

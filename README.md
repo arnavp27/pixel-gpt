@@ -45,14 +45,15 @@ Retraining replaces that model's checkpoint and loss history. Run
 
 ## Drawing
 
-Paint on the canvas in **Generate**, or use **Compare** to try the same drawing
-with all three models. **Dark** fixes a pixel to 1, **White** fixes it to 0,
-and **Eraser** lets the model fill it. Grey cells are unknown. Each cell is
-independent, and **Clear** resets the canvas.
+Draw a pattern on the left half in **Generate**, or use **Compare** to try it
+with all three models. Click or drag to paint dark pixels; start on a dark pixel
+to erase. Untouched cells on the left stay white. The grey right half is reserved
+for the model, and **Clear** resets your drawing.
 
 Choose the settings below the canvas and press Generate or Compare. The sampler
-moves left to right, row by row, keeping fixed pixels and sampling the rest.
-It can use earlier pixels as context, but cannot see marks ahead of it.
+moves left to right, row by row, keeping your left half and predicting the right.
+The models learned from left–right mirror images, so a successful completion
+mirrors your pattern. The app doesn't copy pixels across; each model predicts them.
 Drawings and submitted settings carry across pages. Samples can be downloaded
 as PNGs; **Results** shows the saved evaluation and learning curves.
 
