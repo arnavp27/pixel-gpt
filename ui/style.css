@@ -1,5 +1,5 @@
 [data-testid="stHeader"] { display: none; }
-.block-container { max-width: 1320px; padding: 1rem 2rem; }
+.block-container { max-width: 1320px; padding: 1rem 2rem .25rem; }
 [data-testid="stVerticalBlock"] { gap: .65rem; }
 h1 { font-family: Georgia, serif !important; font-size: 2.35rem !important;
      font-weight: 400 !important; letter-spacing: -.04em; padding: 0 !important; }

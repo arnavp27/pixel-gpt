@@ -144,7 +144,7 @@ def render(mode):
         st.subheader(("Original photo" if reveal else "A possible other half")
                      if mode == "Complete" else "Learned or mirrored?")
         batch = st.session_state.get("face_batch")
-        if batch is None:
+        if batch is None or batch["tokens"].numel() != c.size ** 2:
             st.markdown('<div class="empty-gallery"><p>What could the other half look like?</p>'
                         '<span>Choose a photo, then press Complete. Your visible half stays fixed.</span></div>',
                         unsafe_allow_html=True)

@@ -91,8 +91,8 @@ Sample grids, loss histories, and the full metrics are in [`results/sprites/`](r
 
 ## Faces
 
-The new model takes a 32×32 face with 16 gray shades. It receives every pixel in
-the left half before predicting the right half:
+The face model takes a 64×64 image with 16 gray shades. It receives the 2,048
+pixels in the left half before predicting the 2,048 pixels in the right half:
 
 ```text
 START → left half, row by row → right half, row by row
@@ -111,22 +111,25 @@ image credits are described in [faces/DATA.md](faces/DATA.md).
 The app has an upload and crop workflow, a mirror comparison, and a way to
 reveal the original photo. Generation uses only the left half; the original
 right half is kept for comparison. This model is for centered faces, not general
-image completion. At 32×32, the output will still look pixelated.
+image completion. At 64×64, the output still looks pixelated, but has more
+detail than the first 32×32 version.
 
 Choose Faces in the app, upload a photo or pick an example, and adjust the crop
 if needed. Press Complete to generate the missing half. Compare shows the
 model beside a mirrored version; Reveal the original lets you check both.
 
-I trained the 5,009,680-parameter model from scratch for 12,000 steps using
-AdamW, an effective batch of 32, and a cosine learning-rate schedule. Checkpoint selection uses the same 512 validation faces at each
-check. Final loss is measured on all 5,000 test faces; generated completions
-are also compared with simply mirroring the left half.
+I trained the 5,796,112-parameter model from scratch for 12,000 steps using
+AdamW, an effective batch of 32, and a cosine learning-rate schedule. It took
+about 2 hours 20 minutes on my RTX 4050 laptop GPU. Checkpoint selection uses
+the same 512 validation faces at each check. Final loss is measured on all
+5,000 test faces; generated completions are also compared with simply
+mirroring the left half.
 
 | Measure | Result |
 |---|---:|
-| Right-half test loss | 1.0321 |
-| Model pixel error | 0.1802 |
-| Mirror pixel error | 0.1975 |
+| Right-half test loss | 0.7797 |
+| Model pixel error | 0.1911 |
+| Mirror pixel error | 0.2027 |
 
 Pixel error is mean absolute error on the missing half, with shades scaled to
 0–1. These two errors use 128 randomly selected test faces, temperature 0.8,

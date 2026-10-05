@@ -7,7 +7,7 @@ The 128×128 thumbnail archive comes from the
 [nuwandaa/ffhq128 mirror](https://huggingface.co/datasets/nuwandaa/ffhq128), pinned
 to revision `1b277b6efe3ba86ff0c712b88753892ca5c4e7a3`. The preparation script
 checks the archive's SHA-256 and every PNG's MD5 against NVIDIA's original v2
-metadata. It converts each image to 32×32 grayscale with 16 shades.
+metadata. It converts each image to 64×64 grayscale with 16 shades.
 
 The official 60,000 training images are used for training. The official 10,000
 validation images are shuffled with seed 42 and split evenly into validation

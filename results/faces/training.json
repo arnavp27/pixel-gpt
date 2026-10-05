@@ -1,9 +1,9 @@
 {
   "steps": 12000,
-  "batch_size": 8,
-  "accumulate": 4,
+  "batch_size": 2,
+  "accumulate": 16,
   "lr": 0.0003,
-  "size": 32,
+  "size": 64,
   "levels": 16,
   "width": 256,
   "heads": 4,

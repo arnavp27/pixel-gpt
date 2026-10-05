@@ -21,6 +21,7 @@ def main():
     parser.add_argument("--data", type=Path, default=DATA_FILE)
     parser.add_argument("--split", choices=["val", "test"], default="val")
     parser.add_argument("--samples", type=int, default=32)
+    parser.add_argument("--batch-size", type=int, default=8)
     parser.add_argument("--temperature", type=float, default=0.8)
     parser.add_argument("--seed", type=int, default=123)
     parser.add_argument("--export", action="store_true")
@@ -28,6 +29,8 @@ def main():
     args = parser.parse_args()
     if not math.isfinite(args.temperature) or args.temperature < 0:
         parser.error("Temperature must be nonnegative and finite")
+    if args.batch_size < 1:
+        parser.error("Batch size must be positive")
     torch.set_num_threads(2)
     data = load_data(args.data)
     model, checkpoint = load_model(args.checkpoint, args.device)
@@ -42,7 +45,7 @@ def main():
     if (c.size, c.levels) != (data["size"], data["levels"]):
         parser.error("Checkpoint preprocessing does not match the dataset")
     half = c.size * c.size // 2
-    loss = evaluate_loss(model, images, args.device)
+    loss = evaluate_loss(model, images, args.device, args.batch_size)
     indices = torch.randperm(len(images), generator=torch.Generator().manual_seed(args.seed))[:args.samples]
     outputs, baselines = [], []
     elapsed = 0.0
