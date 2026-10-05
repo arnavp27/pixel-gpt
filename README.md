@@ -8,20 +8,27 @@ model needs to learn symmetry.
 
 ## Run
 
-Python 3.10+ and PyTorch. Tested with Python 3.12.
+Python 3.12. The requirements install CPU-only PyTorch on Linux and Windows.
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-python train.py
-python evaluate.py
 python -m streamlit run app.py
 ```
 
-Open `http://localhost:8501`. Training creates the dataset and saves the best
-validation checkpoint for each model. It uses CUDA when available, otherwise CPU.
-The app loads those checkpoints; it does not train models.
+Open `http://localhost:8501`. The three trained checkpoints are included, so the
+app works without training first.
+
+To train all models again and update the evaluation:
+
+```bash
+python train.py
+python evaluate.py
+```
+
+Training creates the dataset and saves the best validation checkpoint for each
+model. It uses CUDA if a CUDA-enabled PyTorch build is installed, otherwise CPU.
 
 To train or sample from just one model:
 
@@ -88,7 +95,14 @@ differ in capacity and position information as well as context length, so this
 isn't an isolated test of context size.
 
 Sample grids, loss histories, and full metrics are in [`results/`](results/).
-The generated dataset and checkpoints are ignored by Git.
+The generated dataset is ignored by Git. The three small checkpoints are included
+for the hosted demo.
+
+## Hosting
+
+On Streamlit Community Cloud, select `arnavp27/pixel-gpt`, branch `main`, entrypoint
+`app.py`, and Python 3.12. No secrets or training step are needed. Set app sharing
+to public so visitors can open the demo without signing in.
 
 ## Checks
 

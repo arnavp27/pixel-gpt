@@ -3,7 +3,10 @@ __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
 data/
-checkpoints/
+/checkpoints/*
+!/checkpoints/bigram.pt
+!/checkpoints/mlp.pt
+!/checkpoints/transformer.pt
 .cache/
 .env
 .env.*
